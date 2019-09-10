@@ -27,6 +27,20 @@ class SIFormState extends State<SIForm> {
   var _currencies = ['Rupees', 'Dollar', 'Pounds'];
   final _minimumPadding = 5.0;
 
+  var _currentItemSelected = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _currentItemSelected = _currencies[0];
+  }
+  var displayResult= '';
+  TextEditingController principalController = TextEditingController();
+  TextEditingController roiController = TextEditingController();
+  TextEditingController termController = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -50,6 +64,7 @@ class SIFormState extends State<SIForm> {
                 child: TextField(
                   keyboardType: TextInputType.number,
                   style: textStyle,
+                  controller: principalController,
                   decoration: InputDecoration(
                       labelText: 'Principal',
                       hintText: 'Enter Principal e.g. 12000',
@@ -65,6 +80,7 @@ class SIFormState extends State<SIForm> {
                 child: TextField(
                   keyboardType: TextInputType.number,
                   style: textStyle,
+                  controller: roiController,
                   decoration: InputDecoration(
                       labelText: 'Rate of intrest',
                       hintText: 'In percent',
@@ -82,6 +98,7 @@ class SIFormState extends State<SIForm> {
                 Expanded(child: TextField(
                   keyboardType: TextInputType.number,
                   style: textStyle,
+                  controller: termController,
                   decoration: InputDecoration(
                       labelText: 'Term',
                       hintText: 'In Years',
@@ -99,9 +116,10 @@ class SIFormState extends State<SIForm> {
                       child: Text(value),
                     );
                   }).toList(),
-                  value: 'Rupees',
+                  value: _currentItemSelected,
                   onChanged: (String newValueSelected){
-
+                    //your code to execute, when a menu item is selected
+                    _onDropDownItemSelected(newValueSelected);
                   },
                 ))
 
@@ -119,7 +137,9 @@ class SIFormState extends State<SIForm> {
                    textColor: Theme.of(context).primaryColorDark,
                   child: Text('Calculate ',textScaleFactor: 1.5,),
                   onPressed: (){
-
+                     setState(() {
+                      this.displayResult= _calculateTotalReturns();
+                     });
                   },
                 ),
               ),
@@ -130,7 +150,9 @@ class SIFormState extends State<SIForm> {
                   textColor: Theme.of(context).primaryColorLight,
                   child: Text('Reset ',textScaleFactor: 1.5,),
                   onPressed: (){
-
+                     setState(() {
+                       _reset();
+                     });
                   },
                 ),
               ),
@@ -139,7 +161,7 @@ class SIFormState extends State<SIForm> {
 
             Padding(
               padding: EdgeInsets.only(top: _minimumPadding,bottom: _minimumPadding),
-              child: Text('TODO TEXT',style: textStyle,),
+              child: Text(this.displayResult,style: textStyle,),
             )
 
           ],
@@ -160,5 +182,32 @@ class SIFormState extends State<SIForm> {
       child: image,
       margin: EdgeInsets.all(_minimumPadding * 10),
     );
+  }
+
+  void _onDropDownItemSelected(String newValueSelected) {
+
+    setState(() {
+      this._currentItemSelected = newValueSelected;
+    });
+  }
+
+  String _calculateTotalReturns() {
+    double principal = double.parse(principalController.text);
+    double roi = double.parse(roiController.text);
+    double term = double.parse(termController.text);
+
+    double totalAmountPayable = principal+(principal*roi*term)/100;
+
+    String result = 'After $term years, your investment will be worth $totalAmountPayable $_currentItemSelected';
+    return result;
+  }
+
+  void _reset() {
+
+    principalController.text='';
+    roiController.text='';
+    termController.text='';
+    displayResult='';
+    _currentItemSelected = _currencies[0];
   }
 }
